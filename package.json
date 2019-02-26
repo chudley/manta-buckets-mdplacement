@@ -1,12 +1,12 @@
 {
-    "name": "electric-moray",
-    "description": "moray proxy service",
+    "name": "electric-boray",
+    "description": "buckets moray proxy service",
     "version": "1.0.3",
     "author": "Joyent (joyent.com)",
     "private": true,
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/joyent/electric-moray.git"
+        "url": "git+https://github.com/joyent/electric-boray.git"
     },
     "dependencies": {
         "artedi": "1.1.0",
@@ -22,7 +22,7 @@
         "kang": "1.2.0",
         "ldapjs": "0.6.3",
         "imgapi-cli": "git+https://github.com/joyent/sdc-imgapi-cli.git#db3efc1",
-        "moray": "git+https://github.com/joyent/node-moray.git#buckets-demo",
+        "boray": "git+https://github.com/joyent/node-boray.git#master",
         "node-uuid": "1.4.0",
         "posix-getopt": "^1.0.0",
         "restify": "6.3.1",
