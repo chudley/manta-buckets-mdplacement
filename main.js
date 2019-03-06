@@ -189,7 +189,8 @@ function run(options) {
         // LOG.info('Serializing ring!');
         // res.ring.chash_.serialize(function (err, strring) {
         //     if (err) {
-        //         throw new verror.VError(err, 'unable to serialize hash ring');
+        //         throw new verror.VError(err,
+        //             'unable to serialize hash ring');
         //     }
         //     LOG.info('Serialized ring: ' + strring);
         //     return;
