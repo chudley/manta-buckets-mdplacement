@@ -176,7 +176,7 @@ function run(options) {
     opts.log = LOG;
     opts.name = NAME;
 
-    app.createBucketServer(opts, function (err, res) {
+    app.createServer(opts, function (err, res) {
         if (err) {
             LOG.fatal(err, 'startup failed');
             process.exit(1);
@@ -196,7 +196,7 @@ function run(options) {
         //     return;
         // });
 
-        app.createBucketStatusServer({
+        app.createStatusServer({
             log: LOG.child({ component: 'statusServer' }),
             dataDirector: res.dataDirector,
             clientList: res.clientList,
