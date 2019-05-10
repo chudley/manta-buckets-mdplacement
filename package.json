@@ -1,6 +1,6 @@
 {
     "name": "electric-boray",
-    "description": "buckets moray proxy service",
+    "description": "buckets boray proxy service",
     "version": "1.0.3",
     "author": "Joyent (joyent.com)",
     "private": true,

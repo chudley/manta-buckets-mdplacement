@@ -7,11 +7,11 @@
 -->
 
 <!--
-    Copyright (c) 2018, Joyent, Inc.
+    Copyright (c) 2019, Joyent, Inc.
 -->
 
-<service_bundle type="manifest" name="-electric-moray">
-    <service name="smartdc/application/electric-moray" type="service" version="1">
+<service_bundle type="manifest" name="-electric-boray">
+    <service name="smartdc/application/electric-boray" type="service" version="1">
 
         <dependency name="network"
             grouping="require_all"
@@ -44,13 +44,13 @@
         <exec_method
             type="method"
             name="start"
-            exec="node --abort-on-uncaught-exception main.js -f etc/config.json -r %{electric-moray/ring-location} -p %{electric-moray/port} -k %{electric-moray/kang} -s %{electric-moray/status} &amp;"
+            exec="node --abort-on-uncaught-exception main.js -f etc/config.json -r %{electric-boray/ring-location} -p %{electric-boray/port} -k %{electric-boray/kang} -s %{electric-boray/status} &amp;"
             timeout_seconds="30">
-            <method_context working_directory="/opt/smartdc/electric-moray">
+            <method_context working_directory="/opt/smartdc/electric-boray">
                 <method_credential user="root" group="nobody" />
                 <method_environment>
                     <envvar name="PATH"
-                        value="/opt/smartdc/electric-moray/build/node/bin:/opt/local/bin:/usr/bin:/usr/sbin:/bin"/>
+                        value="/opt/smartdc/electric-boray/build/node/bin:/opt/local/bin:/usr/bin:/usr/sbin:/bin"/>
                     <envvar name="LD_PRELOAD_32"
                         value="/usr/lib/extendedFILE.so.1" />
                 </method_environment>
@@ -65,12 +65,12 @@
 
         <property_group name="application" type="application" />
 
-        <instance name="@@ELECTRIC-MORAY_INSTANCE_NAME@@" enabled="true">
-            <property_group name="electric-moray" type="application">
-                <propval name="port" type="astring" value="@@ELECTRIC-MORAY_PORT@@" />
+        <instance name="@@ELECTRIC-BORAY_INSTANCE_NAME@@" enabled="true">
+            <property_group name="electric-boray" type="application">
+                <propval name="port" type="astring" value="@@ELECTRIC-BORAY_PORT@@" />
                 <propval name="kang" type="astring" value="@@KANG_PORT@@" />
                 <propval name="status" type="astring" value="@@STATUS_PORT@@" />
-                <propval name="ring-location" type="astring" value="/electric-moray/chash/leveldb-@@ELECTRIC-MORAY_PORT@@" />
+                <propval name="ring-location" type="astring" value="/electric-boray/chash/leveldb-@@ELECTRIC-BORAY_PORT@@" />
             </property_group>
         </instance>
 
@@ -78,7 +78,7 @@
 
         <template>
             <common_name>
-                <loctext xml:lang="C">Joyent electric-moray Service</loctext>
+                <loctext xml:lang="C">Joyent electric-boray Service</loctext>
             </common_name>
         </template>
 

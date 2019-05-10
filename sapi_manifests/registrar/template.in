@@ -1,11 +1,11 @@
 {
   "registration": {
     "domain": "{{SERVICE_NAME}}",
-    "type": "moray_host",
+    "type": "boray_host",
     "service": {
       "type": "service",
       "service": {
-        "srvce": "_moray",
+        "srvce": "_boray",
         "proto": "_tcp",
         "port": 2020
       },
@@ -30,7 +30,7 @@
   "adminIp": "{{auto.MANTA_IP}}",
 
   "healthCheck": {
-    "command": "test -e /var/tmp/electric-moray-ready",
+    "command": "test -e /var/tmp/electric-boray-ready",
     "ignoreExitStatus": false,
     "stdoutMatch": {
       "pattern": ""
