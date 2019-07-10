@@ -30,7 +30,7 @@ var DEFAULTS = {
     statusPort: 4020,
     bindip: '0.0.0.0'
 };
-var NAME = 'electric-moray';
+var NAME = 'electric-boray';
 var LOG_SERIALIZERS = {
     err: bunyan.stdSerializers.err
 };

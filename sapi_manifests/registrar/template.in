@@ -1,7 +1,7 @@
 {
   "registration": {
     "domain": "{{SERVICE_NAME}}",
-    "type": "boray_host",
+    "type": "moray_host",
     "service": {
       "type": "service",
       "service": {
