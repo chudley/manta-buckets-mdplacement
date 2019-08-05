@@ -6,7 +6,7 @@
 #
 
 #
-# Copyright (c) 2019, Joyent, Inc.
+# Copyright 2019, Joyent, Inc.
 #
 
 #
@@ -31,9 +31,9 @@ source ${DIR}/scripts/services.sh
 export PATH=$SVC_ROOT/bin:$SVC_ROOT/build/node/bin:/opt/local/bin:/usr/sbin/:/usr/bin:$PATH
 export PS4='[\D{%FT%TZ}] ${BASH_SOURCE}:${LINENO}: ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
 
-FASH=/opt/smartdc/electric-boray/node_modules/.bin/fash
-LEVELDB_DIR_PARENT=/electric-boray/chash
-LEVELDB_DIR=$LEVELDB_DIR_PARENT/leveldb-
+FASH=$SVC_ROOT/node_modules/.bin/fash
+SDC_IMGADM=$SVC_ROOT/node_modules/.bin/sdc-imgadm
+RING_DIR=/electric-boray/data_placement
 SAPI_URL=$(mdata-get SAPI_URL)
 [[ -n $SAPI_URL ]] || fatal "no SAPI_URL found"
 sleep 10 # wait 10 seconds for dns to setup, this is so lame but otherwise will resolve in dns resolution errors.
@@ -67,8 +67,8 @@ while :; do
     break
 done
 
-HASH_RING_IMAGE=$(json metadata.HASH_RING_IMAGE <<< "$manta_app")
-[[ -n $HASH_RING_IMAGE ]] || fatal "no HASH_RING_IMAGE found"
+HASH_RING_IMAGE=$(json metadata.BUCKETS_HASH_RING_IMAGE <<< "$manta_app")
+[[ -n $HASH_RING_IMAGE ]] || fatal "no BUCKETS_HASH_RING_IMAGE found"
 HASH_RING_FILE=/var/tmp/$(uuid -v4).tar.gz
 export SDC_IMGADM_URL=$(json metadata.HASH_RING_IMGAPI_SERVICE <<< "$manta_app")
 [[ -n $SDC_IMGADM_URL ]] || fatal "no SDC_IMGADM_URL found"
@@ -94,49 +94,35 @@ function manta_setup_determine_instances {
     fi
 }
 
-function manta_setup_leveldb_hash_ring {
+function manta_setup_electric_boray_hash_ring {
     # get the hash ring image
-    /opt/smartdc/electric-boray/node_modules/.bin/sdc-imgadm get-file $HASH_RING_IMAGE -o $HASH_RING_FILE
-    local leveldb_ring_parent_dir=/var/tmp/$(uuid -v4)
-    local leveldb_ring=$leveldb_ring_parent_dir/hash_ring
-    mkdir -p $leveldb_ring_parent_dir
-    tar -xzf $HASH_RING_FILE -C $leveldb_ring_parent_dir
+    $SDC_IMGADM get-file $HASH_RING_IMAGE -o $HASH_RING_FILE
+    local ring_parent_dir=/var/tmp/$(uuid -v4)
+    local ring=$ring_parent_dir/hash_ring_serialized/ring.json
+    mkdir -p $ring_parent_dir
+    tar -xzf $HASH_RING_FILE -C $ring_parent_dir
     # delete the dataset if it already exists
     set +o errexit
     zfs destroy -rf $ZFS_DATASET
     set -o errexit
     # create the dataset
     zfs create -o canmount=noauto $ZFS_DATASET
-    [[ $? -eq 0 ]] || fatal "unable to setup leveldb"
+    [[ $? -eq 0 ]] || fatal "unable to setup buckets hash ring"
     # create the mountpoint dir
-    mkdir -p $LEVELDB_DIR_PARENT
-    [[ $? -eq 0 ]] || fatal "unable to setup leveldb"
+    mkdir -p $RING_DIR
+    [[ $? -eq 0 ]] || fatal "unable to setup buckets hash ring"
     # set the mountpoint
-    zfs set mountpoint=$LEVELDB_DIR_PARENT $ZFS_DATASET
-    [[ $? -eq 0 ]] || fatal "unable to setup leveldb"
+    zfs set mountpoint=$RING_DIR $ZFS_DATASET
+    [[ $? -eq 0 ]] || fatal "unable to setup buckets hash ring"
     # mount the dataset
     zfs mount $ZFS_DATASET
-    [[ $? -eq 0 ]] || fatal "unable to setup leveldb"
-    # build the list of leveldb locations
-    local leveldb_dirs
-    for (( i=1; i<=$ELECTRIC_BORAY_INSTANCES; i++ ))
-    do
-        leveldb_dirs[$i]=$LEVELDB_DIR$(expr 2020 + $i)
-    done
+    [[ $? -eq 0 ]] || fatal "unable to setup buckets hash ring"
 
-    # try and load the topology from disk, if the load fails, we should error
-    # out since we expect the topology to be there in the configure script
-    for dir in "${leveldb_dirs[@]}"
-    do
-        cp -R $leveldb_ring $dir
-        [[ $? -eq 0 ]] || fatal "unable to setup leveldb"
-        # test with get-node on the newly created ring
-        $FASH get-node -l $dir -b leveldb yunong
-        [[ $? -eq 0 ]] || fatal "unable to setup leveldb"
-    done
+    cp -R $ring $RING_DIR
+
     ZFS_SNAPSHOT=$ZFS_DATASET@$(date +%s)000
     zfs snapshot $ZFS_SNAPSHOT
-    [[ $? -eq 0 ]] || fatal "unable to setup leveldb"
+    [[ $? -eq 0 ]] || fatal "unable to setup buckets hash ring"
 }
 
 function manta_setup_electric_boray {
@@ -283,8 +269,8 @@ manta_common_setup "electric-boray" 0
 
 manta_setup_determine_instances
 
-# echo "Setting up leveldb"
-# manta_setup_leveldb_hash_ring
+echo "Setting up hash ring"
+manta_setup_electric_boray_hash_ring
 
 echo "Setting up e-boray"
 manta_setup_electric_boray
