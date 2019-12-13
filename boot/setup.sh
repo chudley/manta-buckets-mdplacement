@@ -146,19 +146,6 @@ function manta_setup_electric_boray {
     #To preserve whitespace in echo commands...
     IFS='%'
 
-    #haproxy
-    for port in "${ports[@]}"; do
-        hainstances="$hainstances        server electric-boray-$port 127.0.0.1:$port check inter 10s slowstart 10s error-limit 3 on-error mark-down\n"
-    done
-
-    sed -e "s#@@ELECTRIC-BORAY_INSTANCES@@#$hainstances#g" \
-        $SVC_ROOT/etc/haproxy.cfg.in > $SVC_ROOT/etc/haproxy.cfg || \
-        fatal "could not process $src to $dest"
-
-    svccfg import $SVC_ROOT/smf/manifests/haproxy.xml || \
-        fatal "unable to import haproxy"
-    svcadm enable "manta/haproxy" || fatal "unable to start haproxy"
-
     #electric-boray instances
     local electric_boray_xml_in=$SVC_ROOT/smf/manifests/electric-boray.xml.in
     for (( i=1; i<=$ELECTRIC_BORAY_INSTANCES; i++ )); do
